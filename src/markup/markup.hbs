@@ -1,3 +1,28 @@
 {{#each this}}
-<li class="result-list_item"><img src="{{webformatURL}}" alt="Photo of your search"></li>
+<div class="gallery__item">
+    <a href="{{webformatURL}}">
+            <img class="gallery__img" src="{{largeImageURL}}" alt="{{tags}}" loading="lazy" />
+    </a>
+    <div class="info">
+        <p class="info-item">
+            <b class="info-text" >Likes</b>
+            <b class="info-data" >{{likes}}</b>
+        </p>
+        <p class="info-item">
+            <b class="info-text" >Views</b>
+            <b class="info-data" >{{views}}</b>
+        </p>
+        <p class="info-item">
+            <b class="info-text" >Comments</b>
+            <b class="info-data" >{{comments}}</b>
+        </p>
+        <p class="info-item">
+            <b class="info-text" >Downloads</b>
+            <b class="info-data" >{{downloads}}</b>
+        </p>
+    </div>
+</div>
 {{/each}}
+
+
+{{!-- <div class="gallery__item"><img class="gallery__img" src="{{webformatURL}}" alt="Photo of your search"></div> --}}

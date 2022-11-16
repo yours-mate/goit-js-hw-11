@@ -9,12 +9,15 @@ const searchOptions = {
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: 'true',
+    per_page: 40,
+    page: 1,
   },
 };
+let response;
 
 async function getPhotos(searchInput) {
   try {
-    const response = await axios(`${BASE_URL}?q=${searchInput}`, searchOptions);
+    response = await axios(`${BASE_URL}?q=${searchInput}`, searchOptions);
     let resultList = await response.data.hits;
     if (resultList.length !== 0) {
       console.log(resultList);
@@ -29,7 +32,7 @@ async function getPhotos(searchInput) {
   }
 }
 
-export { BASE_URL, API_KEY, searchOptions, getPhotos };
+export { BASE_URL, API_KEY, searchOptions, response, getPhotos };
 
 // fetch(
 //   `${BASE_URL}?key=31291056-02b52945dcd563b074a1c7cbe&q=${refs.inputField.value}&image_type=photo&orientation=horizontal&safesearch=true`

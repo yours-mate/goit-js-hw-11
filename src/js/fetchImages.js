@@ -33,7 +33,3 @@ async function getPhotos(searchInput) {
 }
 
 export { BASE_URL, API_KEY, searchOptions, response, getPhotos };
-
-// fetch(
-//   `${BASE_URL}?key=31291056-02b52945dcd563b074a1c7cbe&q=${refs.inputField.value}&image_type=photo&orientation=horizontal&safesearch=true`
-// );

@@ -1,12 +1,7 @@
 import Notiflix from 'notiflix';
 import * as fetchImages from './js/fetchImages';
 import Markup from './markup/markup.hbs';
-import SimpleLightbox from 'simplelightbox';
-import 'simplelightbox/dist/simple-lightbox.min.css';
-
-// import debounce from 'lodash.debounce';
-
-// const DEBOUNCE_DELAY = 300;
+import simpleLightbox from './js/lightbox';
 
 const refs = {
   form: document.querySelector('#search-form'),
@@ -16,64 +11,76 @@ const refs = {
   loadMoreBtn: document.querySelector('.load-more'),
 };
 
-let lightbox;
-
 refs.form.addEventListener('submit', renderMarkup);
 
+// Smooth scroll function
 function smoothScroll() {
   const { height: cardHeight } =
     refs.gallery.firstElementChild.getBoundingClientRect();
 
   window.scrollBy({
-    top: cardHeight * 2,
+    top: cardHeight * 1.5,
     behavior: 'smooth',
   });
 }
 
-async function renderMarkup(evt) {
-  evt.preventDefault();
-  refs.gallery.innerHTML = '';
-  fetchImages.searchOptions.params.page = 1;
-  const searchList = await fetchImages.getPhotos(refs.inputField.value);
-  const markupList = await Markup(searchList);
-  refs.gallery.insertAdjacentHTML('beforeend', markupList);
-  smoothScroll();
+// Checking the search
+function onSearchOptions() {
+  if (fetchImages.response.data.totalHits === 0) {
+    return;
+  } else if (fetchImages.response.data.totalHits > 40) {
+    refs.loadMoreBtn.classList.remove('is-hidden');
+  } else {
+    Notiflix.Notify.warning(
+      'We are sorry, but you have reached the end of search results.'
+    );
+  }
   Notiflix.Notify.success(
     `Hooray! We found ${fetchImages.response.data.totalHits} images`
   );
-  lightbox = new SimpleLightbox('.gallery a', {
-    captionsData: 'alt',
-    captionDelay: 250,
-  });
-  if (searchList.length !== 0) {
-    refs.loadMoreBtn.classList.remove('is-hidden');
-  }
+}
+
+// Markup function after search
+async function renderMarkup(evt) {
+  try {
+    evt.preventDefault();
+    refs.gallery.innerHTML = '';
+    fetchImages.searchOptions.params.page = 1;
+    refs.loadMoreBtn.classList.add('is-hidden');
+    const searchList = await fetchImages.getPhotos(refs.inputField.value);
+    const markupList = await Markup(searchList);
+    refs.gallery.insertAdjacentHTML('beforeend', markupList);
+    onSearchOptions();
+    smoothScroll();
+    simpleLightbox();
+  } catch {}
 }
 
 refs.loadMoreBtn.addEventListener('click', onLoadMoreBtnRender);
 
-async function onLoadMoreBtnRender() {
-  fetchImages.searchOptions.params.page += 1;
-  const searchList = await fetchImages.getPhotos(refs.inputField.value);
-  const markupList = await Markup(searchList);
-  refs.gallery.insertAdjacentHTML('beforeend', markupList);
-  smoothScroll();
-  lightbox.destroy();
-  lightbox = new SimpleLightbox('.gallery a', {
-    captionsData: 'alt',
-    captionDelay: 250,
-  });
+// Function to hide button Load more at the end of the search
+function onCheckFurtherResults() {
+  if (
+    fetchImages.response.data.totalHits <
+    fetchImages.searchOptions.params.page *
+      fetchImages.searchOptions.params.per_page
+  ) {
+    refs.loadMoreBtn.classList.add('is-hidden');
+    Notiflix.Notify.warning(
+      'We are sorry, but you have reached the end of search results.'
+    );
+  }
 }
 
-// refs.formBtn.disabled = true;
-
-// refs.inputField.addEventListener(
-//   'input',
-//   debounce(onInputHandle, DEBOUNCE_DELAY)
-// );
-
-// function onInputHandle() {
-//   if (refs.inputField.value.trim() !== '') {
-//     refs.formBtn.disabled = false;
-//   }
-// }
+// Function for loading more photos
+async function onLoadMoreBtnRender() {
+  try {
+    onCheckFurtherResults();
+    fetchImages.searchOptions.params.page += 1;
+    const searchList = await fetchImages.getPhotos(refs.inputField.value);
+    const markupList = await Markup(searchList);
+    refs.gallery.insertAdjacentHTML('beforeend', markupList);
+    smoothScroll();
+    simpleLightbox().refresh();
+  } catch {}
+}

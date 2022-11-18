@@ -19,7 +19,7 @@ function smoothScroll() {
     refs.gallery.firstElementChild.getBoundingClientRect();
 
   window.scrollBy({
-    top: cardHeight * 1.5,
+    top: window.screen.height - cardHeight,
     behavior: 'smooth',
   });
 }
@@ -51,7 +51,6 @@ async function renderMarkup(evt) {
     const markupList = await Markup(searchList);
     refs.gallery.insertAdjacentHTML('beforeend', markupList);
     onSearchOptions();
-    smoothScroll();
     simpleLightbox();
   } catch {}
 }
@@ -69,14 +68,15 @@ function onCheckFurtherResults() {
     Notiflix.Notify.warning(
       'We are sorry, but you have reached the end of search results.'
     );
+    return;
   }
 }
 
 // Function for loading more photos
 async function onLoadMoreBtnRender() {
   try {
-    onCheckFurtherResults();
     fetchImages.searchOptions.params.page += 1;
+    onCheckFurtherResults();
     const searchList = await fetchImages.getPhotos(refs.inputField.value);
     const markupList = await Markup(searchList);
     refs.gallery.insertAdjacentHTML('beforeend', markupList);

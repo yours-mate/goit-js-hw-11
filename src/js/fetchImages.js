@@ -16,19 +16,21 @@ const searchOptions = {
 let response;
 
 async function getPhotos(searchInput) {
-  try {
-    response = await axios(`${BASE_URL}?q=${searchInput}`, searchOptions);
-    let resultList = await response.data.hits;
-    if (resultList.length !== 0) {
-      console.log(resultList);
-      return resultList;
-    } else {
-      Notiflix.Notify.failure(
-        'Sorry, there are no images matching your search query. Please try again.'
-      );
-    }
-  } catch (error) {
-    console.error(error);
+  if (searchInput.trim() === '') {
+    Notiflix.Notify.warning(
+      'Please type your request in the search bar and click the button'
+    );
+    return;
+  }
+  response = await axios(`${BASE_URL}?q=${searchInput}`, searchOptions);
+  let resultList = await response.data.hits;
+  if (resultList.length !== 0) {
+    console.log(resultList);
+    return resultList;
+  } else {
+    Notiflix.Notify.failure(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
   }
 }
 
